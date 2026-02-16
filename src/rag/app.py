@@ -48,11 +48,11 @@ from .config import load_settings, init_chroma, init_llm
 from .session import SessionStats, usage_from_metadata, TurnUsage
 from langchain_core.documents import Document
 from .pdf_pipeline import extract_all_units
+from .SummaryBasedMemory import SummaryBasedMemory
 
 # -----------------------------
 # Checkpoint helpers
 # -----------------------------
-
 def checkpoint_path(chroma_dir: Path) -> Path:
     """Single checkpoint file storing state for ALL PDFs."""
     return chroma_dir / ".checkpoint.json"
@@ -213,7 +213,7 @@ def read_question(single_line: bool = True) -> str:
     lines = []
     while True:
         line = click.prompt(">", default="", show_default=False)
-        if line.strip() == "--":
+        if line.strip() == "--" or line.strip() == "\n\n":
             break
         lines.append(line)
     return "\n".join(lines).strip()
@@ -420,6 +420,7 @@ def extract_usage(obj) -> TurnUsage:
 @click.option("--show-usage/--no-show-usage", default=True, help="Show token usage if available.")
 @click.pass_context
 def chat(ctx: click.Context, top_k: Optional[int], multiline: bool, stream: bool, show_usage: bool):
+    summaryBasedMemory = SummaryBasedMemory(ctx.obj["llm"], "", max_cur_chat_history_size=500)
     """
     Chat:
     - Retrieves context from Chroma
@@ -446,6 +447,8 @@ You are a helpful personal assistant for question-answering tasks against the do
  - todays date added in the context answer accordingly
  
 Keep the answer concise and to the point.
+
+History: {history}
 
 Question: {question}
 
@@ -491,7 +494,7 @@ Answer (1-5 sentences):
             click.echo(f"⚠️  Failed to format context: {e}\n")
             continue
 
-        prompt_text = prompt_tmpl.format(question=q, context=ctx_text)
+        prompt_text = prompt_tmpl.format(question=q, context=ctx_text, history=summaryBasedMemory.get_summary())
         msg = HumanMessage(content=prompt_text)
 
         # Stream answer
@@ -501,18 +504,20 @@ Answer (1-5 sentences):
         llm_call = llm
         final_usage = TurnUsage()
         try:
+            
             if stream:
+                response = ""
                 for chunk in llm_call.stream([msg]):
                     delta = getattr(chunk, "content", "") or ""
                     if delta:
                         click.echo(delta, nl=False)
-
+                        response += delta
                     u = extract_usage(chunk)
                     if u.total_tokens > 0:
                         final_usage = u  # keep the last non-zero usage (usually final chunk)
 
                 click.echo("\n")  # newline after streaming
-
+                summaryBasedMemory.add_to_memory(q,response)
             else:
                 resp = llm_call.invoke([msg])
                 click.echo((resp.content or "") + "\n")
@@ -520,7 +525,7 @@ Answer (1-5 sentences):
                 u = extract_usage(resp)
                 if u.total_tokens > 0:
                     final_usage = u
-
+                summaryBasedMemory.add_to_memory(q,resp.content)
             # Session stats
             if show_usage:
                 if final_usage.total_tokens > 0:
