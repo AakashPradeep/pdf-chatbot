@@ -62,7 +62,32 @@ This project is a simple **PDF Question & Answering** app (a.k.a. **RAG: Retriev
 
 ## Setup
 
-### 1) Create and activate a virtual environment
+### 1) Create an OpenAI API Key
+
+1. Go to the OpenAI Platform dashboard (API keys / apps management):
+   - https://platform.openai.com/apps-manage
+2. Sign in (or create an account).
+3. Create a new **API key** from the dashboard.
+4. Copy the key and store it safely (treat it like a password).
+
+### Set the API key as an environment variable
+
+macOS / Linux:
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+```
+
+Windows:
+```
+setx OPENAI_API_KEY "your_api_key_here"
+```
+
+#### Important: Never commit API keys to git. Use environment variables (or a secrets manager) instead.
+```
+This matches OpenAI’s guidance to create an API key via the dashboard and store it securely, typically via an environment variable.  [oai_citation:0‡OpenAI Developers](https://developers.openai.com/api/docs/quickstart/?utm_source=chatgpt.com)
+```
+
+### 2) Create and activate a virtual environment
 
 ```bash
 python3 -m venv .venv
@@ -73,12 +98,12 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-### 2) How to ingest pdf file
+### 3) How to ingest pdf file
 ```
 ./run.sh ingest --pdf-root <folder with pdfs>
 ```
 
-### 2) Start the Q&A session
+### 4) Start the Q&A session
 ```
 ./run.sh chat
 ```
