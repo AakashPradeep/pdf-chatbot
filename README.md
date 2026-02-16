@@ -48,6 +48,7 @@ This project is a simple **PDF Question & Answering** app (a.k.a. **RAG: Retriev
 ---
 
 ## Project Structure (Example)
+```
 ├── app.py                    # UI / entrypoint (Streamlit or CLI)
 ├── ingest.py                 # PDF ingestion pipeline
 ├── qa.py                     # Retrieval + answer generation
@@ -55,7 +56,7 @@ This project is a simple **PDF Question & Answering** app (a.k.a. **RAG: Retriev
 ├── requirements.txt
 ├── .env.example
 └── README.md
-
+```
 
 ---
 
