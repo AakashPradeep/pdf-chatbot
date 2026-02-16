@@ -12,6 +12,7 @@ This project is a simple **PDF Question & Answering** app (a.k.a. **RAG: Retriev
 6. You can safely keep adding PDFs to the folder—only the changed/new content is (re)indexed.
 7. When you ask a question, the app retrieves the most relevant chunks from the vector database.
 8. An LLM produces an answer grounded only in the retrieved context.
+9. Session chat history and corresponding conversation summary is managed by app and provided to LLM with prompt
 
 ---
 
