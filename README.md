@@ -2,13 +2,16 @@
 
 This project is a simple **PDF Question & Answering** app (a.k.a. **RAG: Retrieval-Augmented Generation**).
 
-**What it does**
-1. You upload a PDF
-2. The app extracts text from the PDF
-3. The text is chunked into small pieces
-4. Chunks are embedded and stored in a vector database
-5. When you ask a question, the app retrieves the most relevant chunks
-6. An LLM answers your question using only the retrieved context
+## What it does
+
+1. You add or upload PDFs to a designated folder.
+2. The app extracts text from each PDF.
+3. It splits the text into small, overlapping chunks.
+4. It generates embeddings for each chunk and stores them in a vector database.
+5. It detects PDF changes (new/updated files) and automatically refreshes the vector index, so it stays in sync.
+6. You can safely keep adding PDFs to the folder—only the changed/new content is (re)indexed.
+7. When you ask a question, the app retrieves the most relevant chunks from the vector database.
+8. An LLM produces an answer grounded only in the retrieved context.
 
 ---
 
